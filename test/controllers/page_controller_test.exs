@@ -3,6 +3,6 @@ defmodule Synched.PageControllerTest do
 
   test "GET /" do
     conn = get conn(), "/"
-    assert html_response(conn, 200) =~ "Welcome to Phoenix!"
+    assert json_response(conn, 200) =~ "got it"
   end
 end

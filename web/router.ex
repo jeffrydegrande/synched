@@ -13,14 +13,16 @@ defmodule Synched.Router do
     plug :accepts, ["json"]
   end
 
+  # scope "/", Synched do
+  #   pipe_through :browser # Use the default browser stack
+
+  #   get "/", PageController, :index
+  # end
+
+  # Other scopes may use custom stacks.
   scope "/", Synched do
-    pipe_through :browser # Use the default browser stack
+    pipe_through :api
 
     get "/", PageController, :index
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", Synched do
-  #   pipe_through :api
-  # end
 end

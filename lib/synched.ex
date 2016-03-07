@@ -7,10 +7,8 @@ defmodule Synched do
     import Supervisor.Spec, warn: false
 
     children = [
-      # Start the endpoint when the application starts
       supervisor(Synched.Endpoint, []),
-      # Here you could define other workers and supervisors as children
-      # worker(Synched.Worker, [arg1, arg2, arg3]),
+      supervisor(Synched.Supervisor, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
@@ -24,5 +22,16 @@ defmodule Synched do
   def config_change(changed, _new, removed) do
     Synched.Endpoint.config_change(changed, removed)
     :ok
+  end
+
+  def exec(name, _timeout \\ 3600, func) do
+    registry = Synched.Registry
+    bucket = case Synched.Registry.lookup(registry, name) do
+        :error        -> Synched.Registry.create(registry, name)
+        {:ok, bucket} -> bucket
+      end
+
+    # should we trigger an update here?
+    Synched.Bucket.get(bucket, func) 
   end
 end
