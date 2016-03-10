@@ -10,11 +10,11 @@ defmodule Synched.Bucket do
   end
 
   def get(bucket, func, ttl \\ 0) do
-    GenServer.call(bucket, {:get, func, ttl})
+    GenServer.call(bucket, {:get, func, ttl}, 60_000)
   end
   
   def put(bucket, func, ttl \\ 0) do
-    GenServer.call(bucket, {:put, func, ttl})
+    GenServer.call(bucket, {:put, func, ttl}, 60_000)
   end
 
   def schedule_refresh(ttl) do
