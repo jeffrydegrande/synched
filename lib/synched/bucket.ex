@@ -13,8 +13,8 @@ defmodule Synched.Bucket do
     GenServer.call(bucket, {:get, func, ttl})
   end
   
-  def put(bucket, func) do
-    GenServer.call(bucket, {:put, func})
+  def put(bucket, func, ttl \\ 0) do
+    GenServer.call(bucket, {:put, func, ttl})
   end
 
   def schedule_refresh(ttl) do
@@ -23,25 +23,26 @@ defmodule Synched.Bucket do
     end
   end
 
-  def handle_call({:get, func, ttl}, _from, state) do
+  def handle_call({:get, new_func, ttl}, _from, {value, func} = state) do
     case state do
       {:no_value, _} ->
-        new_value = func.()
+        new_value = new_func.()
         schedule_refresh(ttl)
-        {:reply, new_value, {new_value, func}}
+        {:reply, new_value, {new_value, new_func}}
 
-      {new_value, _} ->
-        {:reply, new_value, {new_value, func}}
+      {^value, _} ->
+        {:reply, value, state}
     end
   end
 
-  def handle_call({:put, func}, _from, state) do
+  def handle_call({:put, func, ttl}, _from, state) do
     new_value = func.()
+    schedule_refresh(ttl)
     {:reply, new_value, {new_value, func}}
   end
 
-  def handle_info(:refresh, {value, func, ttl}) do
-    schedule_refresh(ttl)
+  def handle_info(:refresh, {value, func}) do
+    # schedule_refresh(ttl)
     {:noreply, {func.(), func}}
   end
 end
