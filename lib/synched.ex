@@ -24,14 +24,14 @@ defmodule Synched do
     :ok
   end
 
-  def exec(name, _timeout \\ 3600, func) do
+  def exec(name, func, ttl \\ 0) do
     registry = Synched.Registry
-    bucket = case Synched.Registry.lookup(registry, name) do
-        :error        -> Synched.Registry.create(registry, name)
-        {:ok, bucket} -> bucket
-      end
 
-    # should we trigger an update here?
-    Synched.Bucket.get(bucket, func) 
+    bucket = case Synched.Registry.lookup(registry, name) do
+      :error        -> Synched.Registry.create(registry, name)
+      {:ok, bucket} -> bucket
+    end
+
+    Synched.Bucket.get(bucket, func, ttl) 
   end
 end

@@ -9,15 +9,15 @@ defmodule Synched.Bucket do
     {:ok, {:no_value, nil}}
   end
 
-  def get(bucket, func) do
-    GenServer.call(bucket, {:get, func})
+  def get(bucket, func, ttl \\ 0) do
+    GenServer.call(bucket, {:get, func, ttl})
   end
   
   def put(bucket, func) do
     GenServer.call(bucket, {:put, func})
   end
 
-  def handle_call({:get, func}, _from, state) do
+  def handle_call({:get, func, ttl}, _from, state) do
     case state do
       {:no_value, _} ->
         new_value = func.()
