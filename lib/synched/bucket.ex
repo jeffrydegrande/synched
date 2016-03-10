@@ -17,13 +17,19 @@ defmodule Synched.Bucket do
     GenServer.call(bucket, {:put, func})
   end
 
+  def schedule_refresh(ttl) do
+    if ttl > 0 do
+      Process.send_after(self(), :refresh, ttl)
+    end
+  end
+
   def handle_call({:get, func, ttl}, _from, state) do
     case state do
       {:no_value, _} ->
         new_value = func.()
-        # after a second we're going to update ourselves
-        Process.send_after(self(), :refresh, 1000) 
+        schedule_refresh(ttl)
         {:reply, new_value, {new_value, func}}
+
       {new_value, _} ->
         {:reply, new_value, {new_value, func}}
     end
@@ -34,9 +40,8 @@ defmodule Synched.Bucket do
     {:reply, new_value, {new_value, func}}
   end
 
-  def handle_info(:refresh, {value, func}) do
-    IO.puts "updating"
-    Process.send_after(self(), :refresh, 1000) 
+  def handle_info(:refresh, {value, func, ttl}) do
+    schedule_refresh(ttl)
     {:noreply, {func.(), func}}
   end
 end
