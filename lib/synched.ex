@@ -25,10 +25,8 @@ defmodule Synched do
   end
 
   def exec(name, func, ttl \\ 0) do
-    registry = Synched.Registry
-
-    bucket = case Synched.Registry.lookup(registry, name) do
-      :error        -> Synched.Registry.create(registry, name)
+    bucket = case Synched.Registry.lookup(Synched.Registry, name) do
+      :error        -> Synched.Registry.create(Synched.Registry, name)
       {:ok, bucket} -> bucket
     end
 

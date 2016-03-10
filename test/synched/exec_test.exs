@@ -22,16 +22,14 @@ defmodule Synched.ExecTest do
     end)
   end
 
-  test "it updates it's value after ttl", %{test: test} do
-
+  test "schedule update after ttl", %{test: test} do
     some_random_value = fn -> :random.uniform(100) end
 
     first_value = Synched.exec(test, some_random_value, 20)
     assert first_value != :no_value
-
     assert Synched.exec(test, fn -> 101 end, 20) == first_value
+    # after 20ms we've been updated with a new random value 
     :timer.sleep(40)
-
-    assert Synched.exec(test, fn -> 101 end, 20) != first_value
+    assert Synched.exec(test, fn -> 101 end, 0) != first_value
   end
 end
